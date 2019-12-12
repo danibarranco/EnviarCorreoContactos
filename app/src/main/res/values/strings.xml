@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">EnviarCorreoContactos</string>
+    <string name="respSi">Ok</string>
+    <string name="respNo">No</string>
+    <string name="tituloExpl">Explicacion Permisos</string>
+    <string name="mensajeExpl">Necesitamos acceder a los contactos</string>
+</resources>
