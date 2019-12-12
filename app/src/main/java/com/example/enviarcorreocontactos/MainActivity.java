@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.example.enviarcorreocontactos.model.data.Contacto;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
     protected final int SOLICITUD_PERMISO_CONTACTOS=0;
@@ -116,39 +117,59 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void searchContact() {
+    private void searchContact(){
         String name = null,phone= null,email= null;
-        Contacto contacto;
+        Contacto contact = null;
+        Boolean existe=false;
 
-        // Voy rellenando los datos de la query
-        String[] proyeccion = new String[] { ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Email.ADDRESS};
+        // If you need item type / label, add Data.DATA2 & Data.DATA3 to the projection
+        String[] projection = {ContactsContract.Data.CONTACT_ID, ContactsContract.Data.DISPLAY_NAME, ContactsContract.Data.MIMETYPE, ContactsContract.Data.DATA1};
+        // Add more types to the selection if needed, e.g. StructuredName
+        String selection = ContactsContract.Data.MIMETYPE + " IN ('" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "', '" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "')";
+        Cursor cur = getContentResolver().query(ContactsContract.Data.CONTENT_URI, projection, selection, null, null);
 
+        // Loop through the data
+        while (cur.moveToNext()) {
 
-        String seleccion = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " like '%" + nom +"%' or "+ContactsContract.CommonDataKinds.Phone.NUMBER + " like '%" + num +"%'";
-
-        Cursor micursor = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                proyeccion, seleccion, null, null);
-
-        if (micursor != null){
-            int cont=0;
-            while (micursor.moveToNext()){
-
-                name = micursor.getString(0);
-                phone=micursor.getString(1);
-                email = micursor.getString(2);
-                contacto = new Contacto(name, phone,email) ;
-                contactos.add(contacto);
-
+            long id = cur.getLong(0);
+             name = cur.getString(1);
+            System.out.println(name);
+            String mime = cur.getString(2); // email / phone
+            String data = cur.getString(3);
+            for (Contacto c:contactos
+                 ) {
+                if(c.getId()==id){
+                    existe=true;
+                }
             }
-            System.out.println("hola"+contactos.toString());
-            lanzarActivity(contactos);
-        } else {
-            System.out.println("hola");
-            Toast.makeText(this,"El cursor está vacío", Toast.LENGTH_LONG);
+            // get the Contact class from the HashMap, or create a new one and add it to the Hash
+            if (existe) {
+                for (Contacto c:contactos
+                ) {
+                    if(c.getId()==id){
+                        contact=c;
+                    }
+                }
+                existe=false;
+            } else {
+                contact = new Contacto(id,name,phone,email);
+            }
+
+            switch (mime) {
+                case ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE:
+                    contact.setNumber(data);
+                    break;
+                case ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE:
+                    contact.setEmail(data);
+                    break;
+            }
+            contactos.add(contact);
         }
+        cur.close();
+        System.out.println(contactos.toString());
+        lanzarActivity(contactos);
     }
+    
 
     private void lanzarActivity(ArrayList<Contacto> contactos) {
         startActivity(new Intent(MainActivity.this,Contactos.class).putParcelableArrayListExtra("contactos",contactos));

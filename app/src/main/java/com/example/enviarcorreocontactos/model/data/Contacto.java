@@ -4,22 +4,38 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Contacto implements Parcelable {
+    private long id;
     private String name;
     private String number;
     private String email;
 
 
-    public Contacto(String name, String number, String email) {
+
+    public Contacto(long id, String name, String number, String email) {
+        this.id = id;
         this.name = name;
         this.number = number;
         this.email = email;
     }
 
-
     protected Contacto(Parcel in) {
+        id = in.readLong();
         name = in.readString();
         number = in.readString();
         email = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(name);
+        dest.writeString(number);
+        dest.writeString(email);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Contacto> CREATOR = new Creator<Contacto>() {
@@ -33,6 +49,14 @@ public class Contacto implements Parcelable {
             return new Contacto[size];
         }
     };
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -67,15 +91,5 @@ public class Contacto implements Parcelable {
                 '}';
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(number);
-        dest.writeString(email);
-    }
 }

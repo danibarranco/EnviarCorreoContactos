@@ -54,6 +54,8 @@ public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.MyView
                         listener.onItemClick(current ,v);
                     }
                 });
+            }else{
+                holder.tvEmail.setText("No tiene correo");
             }
         }
 
