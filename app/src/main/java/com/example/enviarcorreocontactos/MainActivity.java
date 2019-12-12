@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(contactos.toString());
         lanzarActivity(contactos);
     }
-    
+
 
     private void lanzarActivity(ArrayList<Contacto> contactos) {
         startActivity(new Intent(MainActivity.this,Contactos.class).putParcelableArrayListExtra("contactos",contactos));
